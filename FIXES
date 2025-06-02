@@ -1,0 +1,35 @@
+# Registro de Bugs del Proyecto
+
+Este archivo tiene como objetivo llevar un seguimiento de los bugs reportados en el programa, su estado actual, fechas y notas relacionadas con cada uno.
+
+## 🐞 Lista de Bugs
+
+| ID  |   Fecha    |   Estado   |  Ver  | Descripción                                          
+|-----|------------|---------------------------------------------------------------------------|
+| 001 | 21-05-2025 | Pendiente  |       | no envia mensajes privados con hub notifiqueme
+| 002 | 21-05-2025 | Resuelto   | 1.3.3 | no envia doble preguntas en flujos
+| 003 | 22-05-2025 | Resuelto   | 1.3.4 | no envia mensaje de chatgpt
+| 004 | 21-05-2025 | Pendiente  | 1.3.5 | kanban, no filtra solo los activos
+| 005 | 21-05-2025 | Resuelto   | 1.3.3 | en flujos, la opcion de ticket no distribuye al area
+| 006 | 23-05-2025 | Pendiente  |       | no deja cerrar el modal mensaje espia
+| 007 | 23-05-2025 | Pendiente  |       | en grupos, no debe tener el ojo espia
+| 008 | 23-05-2025 | Pendiente  |       | en grupos, no debe quedar asgignado con agente
+
+
+## 📝 Leyenda de Estados
+
+- **Pendiente**: El bug ha sido reportado pero aún no se ha comenzado a trabajar en él.
+- **En progreso**: Se está trabajando en la solución del bug.
+- **Resuelto**: El bug ha sido solucionado y verificado.
+
+## ✅ Cómo agregar un nuevo bug
+
+Añadir una nueva fila a la tabla de arriba con la siguiente información:
+
+1. **ID**: Número secuencial del bug.
+2. **Fecha Reporte**: Fecha en que se detectó el bug.
+3. **Descripción**: Breve descripción del problema.
+4. **Estado**: Pendiente, En progreso o Resuelto.
+
+---
+
