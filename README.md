@@ -1,6 +1,6 @@
-# WHATICKET PRO
+# SYTICKET PRO
 
-**Whaticket** es una aplicación basada en *Whaticket*, diseñada para la gestión eficiente de mensajes de **WhatsApp** en empresas y negocios. Permite la administración centralizada de conversaciones, optimizando la comunicación con clientes.
+**SYTicket** es una aplicación basada en *Whaticket*, diseñada para la gestión eficiente de mensajes de **WhatsApp** en empresas y negocios. Permite la administración centralizada de conversaciones, optimizando la comunicación con clientes.
 
 ## ✨ CARACTERÍSTICAS
 
