@@ -44,11 +44,8 @@ const iconContainerStyle = {
   width: "30px",
   height: "30px",
   borderRadius: "50%",
-  /*   marginRight: "5px", */
   position: "relative",
-  /*   top: "-4px" */
 };
-
 const useStyles = makeStyles((theme) => ({
   ticket: {
     position: "relative",
@@ -56,7 +53,6 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 20,
     marginTop: 3,
   },
-
   pendingTicket: {
     cursor: "unset",
   },
@@ -109,13 +105,11 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "600",
     margin: "0px",
   },
-
   contactNameWrapper: {
     display: "flex",
     justifyContent: "space-between",
     marginLeft: "5px",
   },
-
   lastMessageTime: {
     justifySelf: "flex-end",
     textAlign: "right",
@@ -124,34 +118,29 @@ const useStyles = makeStyles((theme) => ({
     color: "#black",
     padding: 1,
     paddingLeft: 5,
-    paddingRight: 0,
+    paddingRight: 10,
     fontSize: "1em",
   },
-
   closedBadge: {
     alignSelf: "center",
     justifySelf: "flex-end",
     marginRight: 32,
     marginLeft: "auto",
   },
-
   contactLastMessage: {
     paddingRight: "0%",
     marginLeft: "5px",
   },
-
   badgeStyle: {
     color: "white",
     backgroundColor: green[500],
     right: 20,
   },
-
   acceptButton: {
     position: "absolute",
     borderRadius: "15px",
     right: "108px",
   },
-
   ticketQueueColor: {
     flex: "none",
     width: "16px",
@@ -163,15 +152,12 @@ const useStyles = makeStyles((theme) => ({
     borderStyle: "solid",
     borderColor: "white",
   },
-
   ticketInfo: {
     position: "relative",
     top: -13,
   },
   secondaryContentSecond: {
     display: "flex",
-    // marginTop: 5,
-    //marginLeft: "5px",
     alignItems: "flex-start",
     flexWrap: "wrap",
     flexDirection: "row",
@@ -223,22 +209,20 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "#0d6efd",
     color: "#fff",
     fontWeight: "bold",
+    height: "100%",
     textTransform: "uppercase",
     padding: "6px 20px",
     borderRadius: "0px 8px 8px 0px",
     fontSize: "0.8rem",
     boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
     height: "100%",
-    maxWidth: 70,
-    position: "absolute",
-    right: 0,
-    zIndex: 1,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     "&:hover": {
       backgroundColor: "#0b5ed7",
-    }
+    },
   }
-
-
 }));
 const TicketListItemCustom = ({ ticket }) => {
   const classes = useStyles();
@@ -321,8 +305,10 @@ const TicketListItemCustom = ({ ticket }) => {
     try {
       await api.put(`/tickets/${id}`, {
         status: "closed",
-        userId: user?.id,
-        queueId: ticket?.queue?.id,
+        userId: null,
+        queueId: null,
+        /*         userId: user?.id,
+                queueId: ticket?.queue?.id, */
       });
       history.push("/tickets/");
     } catch (err) {
@@ -388,25 +374,6 @@ const TicketListItemCustom = ({ ticket }) => {
 
   const renderTicketInfo = () => {
     switch (ticket.status) {
-      case "pending":
-        return (
-          <>
-            {/*           <Tooltip title="Aceitar">
-              <CheckIcon
-                className={classes.actionIcon}
-                style={{ color: green[500] }}
-                onClick={() => handleAcceptTicket(ticket.id)}
-              />
-            </Tooltip>
-            <Tooltip title="Recusar">
-              <CloseIcon
-                className={classes.actionIcon}
-                style={{ color: red[500] }}
-                onClick={() => handleCloseTicket(ticket.id)}
-              />
-            </Tooltip> */}
-          </>
-        );
       case "closed":
         return (
           <Tooltip title="Reabrir">
@@ -565,9 +532,14 @@ const TicketListItemCustom = ({ ticket }) => {
             </span>
           }
         />
-
-        {/* ✅ ÚNICO ListItemSecondaryAction al final */}
-        <ListItemSecondaryAction>
+        <ListItemSecondaryAction style={{
+          right: 0,
+          top: 0,
+          transform: "none",
+          height: "100%",
+          display: "flex",
+          alignItems: "stretch"
+        }}>
           <Box display="flex" alignItems="center" flexDirection="row" gap={1}>
             {/* Hora de último mensaje */}
             {ticket.lastMessage && (
@@ -632,7 +604,6 @@ const TicketListItemCustom = ({ ticket }) => {
                 </ButtonWithSpinner>
               </>
             )}
-
             {ticket.status === "closed" && (
               <Tooltip title="Reabrir">
                 <ReplayIcon
@@ -643,26 +614,25 @@ const TicketListItemCustom = ({ ticket }) => {
               </Tooltip>
             )}
           </Box>
+          <Box display="flex" alignItems="stretch" height="100%">
+            {ticket.status === "pending" && !ticket.isGroup && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => handleAcceptTicket(ticket.id)}
+                className={classes.botonAceptarEstiloImagen}
+                fullWidth
+              >
+                <span style={{ fontSize: "0.75rem", fontWeight: "bold" }}>Aceptar</span>
+              </Button>
+            )}
+            {/* Otros botones si necesitas */}
+          </Box>
         </ListItemSecondaryAction>
-        {ticket.status === "pending" && !ticket.isGroup && (
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => handleAcceptTicket(ticket.id)}
-            className={classes.botonAceptarEstiloImagen}
-
-          >
-            {/*      <CheckCircleOutlineIcon style={{ fontSize: 28, color: "#fff", marginBottom: 4 }} /> */}
-            <span style={{ fontSize: "0.75rem", fontWeight: "bold" }}>Aceptar</span>
-          </Button>
-
-        )}
       </ListItem>
 
       <Divider variant="inset" component="li" />
     </>
   );
-
 };
-
 export default TicketListItemCustom;

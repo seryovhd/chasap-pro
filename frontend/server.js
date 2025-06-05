@@ -1,4 +1,4 @@
-// servidor express simple para ejecutar la versión de producción del frontend;
+//simple express server to run frontend production build;
 const express = require("express");
 const path = require("path");
 const app = express();

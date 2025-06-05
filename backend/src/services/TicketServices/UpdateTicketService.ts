@@ -116,66 +116,65 @@ const UpdateTicketService = async ({
         key: "userRating"
       });
 
-  // Envia a mensagem de avaliação apenas se o ticket não estiver em status 'pendente'
-  if (
-    ticket.status !== "pending" &&  // Adiciona a verificação para evitar avaliação em status pendente
-    !ticket.contact.isGroup &&
-    !ticket.contact.disableBot &&
-    settingEvaluation?.value === "enabled"
-  ) {
-    if (ticketTraking.ratingAt == null && ticketTraking.userId !== null) {
-      const bodyRatingMessage = `${
-        ratingMessage ? ratingMessage + "\n\n" : ""
-      }Digite de 1 a 5 para qualificar nosso atendimento:\n\n*1* - 😞 _Péssimo_\n*2* - 😕 _Ruim_\n*3* - 😐 _Neutro_\n*4* - 🙂 _Bom_\n*5* - 😊 _Ótimo_`;
+      // Envia a mensagem de avaliação apenas se o ticket não estiver em status 'pendente'
+      if (
+        ticket.status !== "pending" &&  // Adiciona a verificação para evitar avaliação em status pendente
+        !ticket.contact.isGroup &&
+        !ticket.contact.disableBot &&
+        settingEvaluation?.value === "enabled"
+      ) {
+        if (ticketTraking.ratingAt == null && ticketTraking.userId !== null) {
+          const bodyRatingMessage = `${ratingMessage ? ratingMessage + "\n\n" : ""
+            }Digite de 1 a 5 para qualificar nosso atendimento:\n\n*1* - 😞 _Péssimo_\n*2* - 😕 _Ruim_\n*3* - 😐 _Neutro_\n*4* - 🙂 _Bom_\n*5* - 😊 _Ótimo_`;
 
-      await SendWhatsAppMessage({ body: bodyRatingMessage, ticket });
+          await SendWhatsAppMessage({ body: bodyRatingMessage, ticket });
 
-      await ticketTraking.update({
-        ratingAt: moment().toDate()
+          await ticketTraking.update({
+            ratingAt: moment().toDate()
+          });
+
+          // Remove o ticket da lista de abertos
+          io.to(`company-${ticket.companyId}-open`)
+            .to(`queue-${ticket.queueId}-open`)
+            .to(ticketId.toString())
+            .emit(`company-${ticket.companyId}-ticket`, {
+              action: "delete",
+              ticketId: ticket.id
+            });
+
+          return { ticket, oldStatus, oldUserId };
+        }
+
+        ticketTraking.ratingAt = moment().toDate();
+        ticketTraking.rated = false;
+      } else {
+        // Envia apenas a mensagem de finalização se estiver configurada
+        ticketTraking.finishedAt = moment().toDate();
+
+        if (
+          !ticket.contact.isGroup &&
+          !ticket.contact.disableBot &&
+          !isNil(complationMessage) &&
+          complationMessage !== ""
+        ) {
+          const body = `\u200e${complationMessage}`;
+          await SendWhatsAppMessage({ body, ticket });
+        }
+      }
+
+      await ticket.update({
+        promptId: null,
+        integrationId: null,
+        useIntegration: false,
+        typebotStatus: false,
+        typebotSessionId: null
       });
 
-      // Remove o ticket da lista de abertos
-      io.to(`company-${ticket.companyId}-open`)
-        .to(`queue-${ticket.queueId}-open`)
-        .to(ticketId.toString())
-        .emit(`company-${ticket.companyId}-ticket`, {
-          action: "delete",
-          ticketId: ticket.id
-        });
+      ticketTraking.finishedAt = moment().toDate();
+      ticketTraking.whatsappId = ticket.whatsappId;
+      ticketTraking.userId = ticket.userId;
 
-      return { ticket, oldStatus, oldUserId };
     }
-
-    ticketTraking.ratingAt = moment().toDate();
-    ticketTraking.rated = false;
-  } else {
-    // Envia apenas a mensagem de finalização se estiver configurada
-    ticketTraking.finishedAt = moment().toDate();
-
-    if (
-      !ticket.contact.isGroup &&
-      !ticket.contact.disableBot &&
-      !isNil(complationMessage) &&
-      complationMessage !== ""
-    ) {
-      const body = `\u200e${complationMessage}`;
-      await SendWhatsAppMessage({ body, ticket });
-    }
-  }
-
-  await ticket.update({
-    promptId: null,
-    integrationId: null,
-    useIntegration: false,
-    typebotStatus: false,
-    typebotSessionId: null
-  });
-
-  ticketTraking.finishedAt = moment().toDate();
-  ticketTraking.whatsappId = ticket.whatsappId;
-  ticketTraking.userId = ticket.userId;
-
-}
 
     if (queueId !== undefined && queueId !== null) {
       ticketTraking.queuedAt = moment().toDate();
@@ -191,7 +190,7 @@ const UpdateTicketService = async ({
         const wbot = await GetTicketWbot(ticket);
         const msgtxt = `*Mensaje automático*:
         Has sido transferido al departamento *${queue?.name}*
-        por favor, espera, ¡te atenderemos en breve!`;        
+        por favor, espera, ¡te atenderemos en breve!`;
 
         const queueChangedMessage = await wbot.sendMessage(
           `${ticket.contact.number}@${ticket.isGroup ? "g.us" : "s.whatsapp.net"}`,
@@ -227,7 +226,7 @@ const UpdateTicketService = async ({
             const msgtxt = `*Mensaje automático*:
             Has sido transferido al departamento *${queue?.name}* y contarás con la asistencia de *${nome?.name}*
             por favor, espera, ¡te atenderemos en breve!`;
-            
+
             const queueChangedMessage = await wbot.sendMessage(
               `${ticket.contact.number}@${ticket.isGroup ? "g.us" : "s.whatsapp.net"}`,
               {
@@ -243,7 +242,7 @@ const UpdateTicketService = async ({
               const msgtxt = `*Mensaje automático*:
               Has sido transferido al departamento *${queue?.name}*
               por favor, espera, ¡te atenderemos en breve!`;
-              
+
               const queueChangedMessage = await wbot.sendMessage(
                 `${ticket.contact.number}@${ticket.isGroup ? "g.us" : "s.whatsapp.net"}`,
                 {
@@ -251,9 +250,21 @@ const UpdateTicketService = async ({
                 }
               );
               await verifyMessage(queueChangedMessage, ticket, ticket.contact);
-            }      
+            }
     }
+    if (status === "closed") {
+      const rememberAgentSetting = await ListSettingsServiceOne({
+        companyId,
+        key: "rememberCustomerAgent"
+      });
 
+      const shouldKeepAgent = rememberAgentSetting?.value === "enabled";
+      //console.log("shouldKeepAgent:", shouldKeepAgent);
+      if (!shouldKeepAgent) {
+        userId = null;
+        queueId = null;
+      }
+    }
     await ticket.update({
       status,
       queueId,

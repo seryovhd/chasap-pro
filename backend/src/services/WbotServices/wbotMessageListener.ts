@@ -963,7 +963,7 @@ export const verifyMediaMessage = async (
   };
 
   await ticket.update({
-    lastMessage: body || "Arquivo de mídia"
+    lastMessage: body || "Archivo de medios"
   });
 
   const newMessage = await CreateMessageService({

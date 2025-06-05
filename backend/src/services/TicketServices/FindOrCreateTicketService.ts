@@ -51,12 +51,16 @@ const FindOrCreateTicketService = async (
   if (ticket && openTicketSchedule) {
     await ticket.update({ status: "open", unreadMessages });
   }
- //* PARCHE 1.3.1 - RECORDAR AGENTE *//
+  //* PARCHE 1.3.1 - RECORDAR AGENTE *//
   // Obtener configuración de recordar agente
   const rememberAgentSetting = await Setting.findOne({
     where: { key: "rememberCustomerAgent", companyId }
   });
- // PARCHE 1.3.1 - RECORDAR AGENTE *//
+  if (ticket?.status === "closed" && rememberAgentSetting?.value !== "disabled") {
+    await ticket.update({ status: "open", unreadMessages });
+    console.log("🔄 Ticket reabierto con agente recordado:", ticket.userId);
+  }
+  // PARCHE 1.3.1 - RECORDAR AGENTE *//
   // Si es grupo y se encontró ticket, limpiarlo y reutilizar
   if (ticket && groupContact) {
     ticket = await Ticket.findOne({
@@ -67,7 +71,7 @@ const FindOrCreateTicketService = async (
     });
 
     if (ticket) {
-       // PARCHE 1.3.1 - RECORDAR AGENTE //
+      // PARCHE 1.3.1 - RECORDAR AGENTE //
       if (rememberAgentSetting?.value !== "disabled") {
         await ticket.update({
           status: "open",
@@ -118,13 +122,13 @@ const FindOrCreateTicketService = async (
           unreadMessages
         });
       } else {
-      // PARCHE 1.3.1 - RECORDAR AGENTE //
-      if (rememberAgentSetting?.value !== "disabled") {
-        await ticket.update({
-          status: "open",
-          unreadMessages,
-          companyId
-        });
+        // PARCHE 1.3.1 - RECORDAR AGENTE //
+        if (rememberAgentSetting?.value !== "disabled") {
+          await ticket.update({
+            status: "open",
+            unreadMessages,
+            companyId
+          });
         } else {
           // PARCHE 1.3.1 - RECORDAR AGENTE FIN //
           await ticket.update({
@@ -179,7 +183,7 @@ const FindOrCreateTicketService = async (
   if (!ticket) {
     ticket = await Ticket.create({
       contactId: groupContact ? groupContact.id : contact.id,
-      status: "pending",
+      status: rememberedUserId ? "open" : "pending",
       isGroup: !!groupContact,
       unreadMessages,
       whatsappId,

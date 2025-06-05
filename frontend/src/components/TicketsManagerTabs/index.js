@@ -21,7 +21,8 @@ import {
   IconButton,
   Button,
   Tooltip,
-  Box
+  Box,
+  useTheme
 } from "@material-ui/core";
 
 import toastError from '../../errors/toastError';
@@ -136,6 +137,7 @@ const useStyles = makeStyles((theme) => ({
 
 const TicketsManagerTabs = () => {
   const classes = useStyles();
+  const theme = useTheme();
   const history = useHistory();
 
   const [isHoveredAll, setIsHoveredAll] = useState(false);
@@ -165,28 +167,21 @@ const TicketsManagerTabs = () => {
     until: '',
   });
 
-  const [setClosedBox, setClosed] = useState(false);
-  const [setGroupBox, setGroup] = useState(false);
+  const [closedBox, setClosedBox] = useState(false);
+  const [groupBox, setGroupBox] = useState(false);  
 
   useEffect(() => {
     async function fetchData() {
-      let settingIndex;
-
       try {
         const { data } = await api.get('/settings/');
-        settingIndex = data.filter((s) => s.key === 'viewclosed');
+        const setting = data.find(s => s.key === 'viewclosed');
+        if (setting?.value === 'enabled' || user.profile === 'admin') {
+          setClosedBox(true);
+        } else {
+          setClosedBox(false);
+        }
       } catch (err) {
         toastError(err);
-      }
-
-      if (settingIndex[0]?.value === 'enabled') {
-        setClosed(true);
-      } else {
-        if (user.profile === 'admin') {
-          setClosed(true);
-        } else {
-          setClosed(false);
-        }
       }
     }
     fetchData();
@@ -197,15 +192,14 @@ const TicketsManagerTabs = () => {
       try {
         const { data } = await api.get("/settings/");
         const checkGroup = data.find((s) => s.key === "CheckMsgIsGroup");
-
-        if (checkGroup?.value === "enabled") {
-          setGroup(false);
+        if (checkGroup?.value !== "enabled") {
+          setGroupBox(true);
         } else {
-          setGroup(true);
+          setGroupBox(false);
         }
       } catch (err) {
         toastError(err);
-        setGroup(false); // en caso de error, ocultar
+        setGroupBox(false);
       }
     }
     fetchData();
@@ -392,10 +386,10 @@ const TicketsManagerTabs = () => {
                 onClick={() => setSnackbarOpen(true)}
                 size="small"
                 style={{
-                  backgroundColor: "#4caf50",
-                  color: "#fff",
-                  width: 36,
-                  height: 36,
+                  backgroundColor: theme.palette.type === 'dark' ? '#9E9E9E' : '#0000001f',
+                  color: theme.palette.type === 'dark' ? '#1E88E5' : '#373a3c',
+                  width: 26,
+                  height: 26,
                   borderRadius: 8,
                   padding: 4,
                   boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
@@ -415,10 +409,10 @@ const TicketsManagerTabs = () => {
                   onClick={() => setShowAllTickets((prev) => !prev)}
                   size="small"
                   style={{
-                    backgroundColor: showAllTickets ? "#1976d2" : "transparent",
-                    color: showAllTickets ? "#fff" : "#1976d2",
-                    width: 36,
-                    height: 36,
+                    backgroundColor: showAllTickets ? "#1976d2" : "#0000001f",
+                    color: showAllTickets ? "#fff" : "#373a3c",
+                    width: 26,
+                    height: 26,
                     borderRadius: 8,
                     padding: 4,
                     boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
