@@ -192,7 +192,6 @@ const NotificationsPopOver = (volume) => {
 			e.preventDefault();
 			window.focus();
 			historyRef.current.push(`/tickets/${ticket.uuid}`);
-			// handleChangeTab(null, ticket.isGroup? "group" : "open");
 		};
 
 		setDesktopNotifications(prevState => {

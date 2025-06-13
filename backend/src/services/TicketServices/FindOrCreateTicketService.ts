@@ -56,10 +56,21 @@ const FindOrCreateTicketService = async (
   const rememberAgentSetting = await Setting.findOne({
     where: { key: "rememberCustomerAgent", companyId }
   });
-  if (ticket?.status === "closed" && rememberAgentSetting?.value !== "disabled") {
-    await ticket.update({ status: "open", unreadMessages });
-    console.log("🔄 Ticket reabierto con agente recordado:", ticket.userId);
+  if (ticket?.status === "closed") {
+    if (rememberAgentSetting?.value !== "disabled" && ticket.userId) {
+      await ticket.update({ status: "open", unreadMessages });
+      console.log("🔄 Ticket reabierto con agente recordado:", ticket.userId);
+    } else {
+      await ticket.update({
+        status: "pending",
+        unreadMessages,
+        userId: null,
+        queueId: null
+      });
+      console.log("🔄 Ticket reabierto como pending (sin agente asignado)");
+    }
   }
+
   // PARCHE 1.3.1 - RECORDAR AGENTE *//
   // Si es grupo y se encontró ticket, limpiarlo y reutilizar
   if (ticket && groupContact) {
@@ -81,7 +92,7 @@ const FindOrCreateTicketService = async (
       } else {
         // PARCHE 1.3.1 - RECORDAR AGENTE FIN //
         await ticket.update({
-          status: "pending",
+          status: "open",
           userId: null,
           unreadMessages,
           queueId: null,
@@ -183,7 +194,7 @@ const FindOrCreateTicketService = async (
   if (!ticket) {
     ticket = await Ticket.create({
       contactId: groupContact ? groupContact.id : contact.id,
-      status: rememberedUserId ? "open" : "pending",
+      status: groupContact ? "open" : (rememberedUserId ? "open" : "pending"),
       isGroup: !!groupContact,
       unreadMessages,
       whatsappId,

@@ -49,7 +49,7 @@ const useStyles = makeStyles((theme) => ({
     flex: 'none',
     height: 73,
     backgroundColor: theme.palette.tabHeaderBackground,
-        paddingTop: "10px"
+    paddingTop: "10px"
   },
   tab: {
     minWidth: 60,
@@ -168,7 +168,7 @@ const TicketsManagerTabs = () => {
   });
 
   const [closedBox, setClosedBox] = useState(false);
-  const [groupBox, setGroupBox] = useState(false);  
+  const [groupBox, setGroupBox] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -213,6 +213,12 @@ const TicketsManagerTabs = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (tab === "group" && tabOpen !== "open") {
+      setTabOpen("open");
+    }
+  }, [tab, tabOpen]);
+  
   useEffect(() => {
     if (tab === 'search' && searchInputRef.current) {
       searchInputRef.current.focus();
@@ -321,7 +327,7 @@ const TicketsManagerTabs = () => {
                 icon={<ChatIcon />}
                 classes={{ root: classes.tab }}
               />
-              {setGroupBox && (
+              {groupBox && (
                 <Tab
                   value={'group'}
                   icon={<GroupIcon />}
@@ -371,88 +377,89 @@ const TicketsManagerTabs = () => {
         </>
         // FIN PRIMER BLOQUE
       )}
-
-      <Paper square elevation={0} className={classes.ticketOptionsBox}>
-        <IconButton
-          className={classes.addButtonStyled}
-          onClick={() => setNewTicketModalOpen(true)}
-        >
-          <AddIcon />
-        </IconButton>
-        <Box className={classes.rightActions}>
-          {user.profile === "admin" && (
-            <Tooltip title={i18n.t("tickets.inbox.closedAll")}>
-              <IconButton
-                onClick={() => setSnackbarOpen(true)}
-                size="small"
-                style={{
-                  backgroundColor: theme.palette.type === 'dark' ? '#9E9E9E' : '#0000001f',
-                  color: theme.palette.type === 'dark' ? '#1E88E5' : '#373a3c',
-                  width: 26,
-                  height: 26,
-                  borderRadius: 8,
-                  padding: 4,
-                  boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                  transition: "all 0.2s ease-in-out",
-                }}
-              >
-                <PlaylistAddCheckOutlinedIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
-          )}
-          <Can
-            role={user.profile}
-            perform="tickets-manager:showall"
-            yes={() => (
-              <Tooltip title={showAllTickets ? i18n.t("tickets.buttons.hideAll") : i18n.t("tickets.buttons.showAll")}>
+      {tab !== "group" && (
+        <Paper square elevation={0} className={classes.ticketOptionsBox}>
+          <IconButton
+            className={classes.addButtonStyled}
+            onClick={() => setNewTicketModalOpen(true)}
+          >
+            <AddIcon />
+          </IconButton>
+          <Box className={classes.rightActions}>
+            {user.profile === "admin" && (
+              <Tooltip title={i18n.t("tickets.inbox.closedAll")}>
                 <IconButton
-                  onClick={() => setShowAllTickets((prev) => !prev)}
+                  onClick={() => setSnackbarOpen(true)}
                   size="small"
                   style={{
-                    backgroundColor: showAllTickets ? "#1976d2" : "#0000001f",
-                    color: showAllTickets ? "#fff" : "#373a3c",
+                    backgroundColor: theme.palette.type === 'dark' ? '#9E9E9E' : '#0000001f',
+                    color: theme.palette.type === 'dark' ? '#1E88E5' : '#373a3c',
                     width: 26,
                     height: 26,
                     borderRadius: 8,
                     padding: 4,
                     boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
-                    transition: "all 0.3s ease",
+                    transition: "all 0.2s ease-in-out",
                   }}
                 >
-                  {showAllTickets ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                  <PlaylistAddCheckOutlinedIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
             )}
+            <Can
+              role={user.profile}
+              perform="tickets-manager:showall"
+              yes={() => (
+                <Tooltip title={showAllTickets ? i18n.t("tickets.buttons.hideAll") : i18n.t("tickets.buttons.showAll")}>
+                  <IconButton
+                    onClick={() => setShowAllTickets((prev) => !prev)}
+                    size="small"
+                    style={{
+                      backgroundColor: showAllTickets ? "#1976d2" : "#0000001f",
+                      color: showAllTickets ? "#fff" : "#373a3c",
+                      width: 26,
+                      height: 26,
+                      borderRadius: 8,
+                      padding: 4,
+                      boxShadow: "0px 2px 5px rgba(0, 0, 0, 0.2)",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {showAllTickets ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                  </IconButton>
+                </Tooltip>
+              )}
+            />
+          </Box>
+          <Snackbar
+            open={snackbarOpen}
+            onClose={() => setSnackbarOpen(false)}
+            message={i18n.t("tickets.inbox.closedAllTickets")}
+            ContentProps={{ className: classes.snackbar }}
+            action={
+              <>
+                <Button
+                  className={classes.yesButton}
+                  size="small"
+                  onClick={async () => {
+                    await CloseAllTicket();
+                    setSnackbarOpen(false);
+                  }}
+                >
+                  {i18n.t("tickets.inbox.yes")}
+                </Button>
+                <Button
+                  className={classes.noButton}
+                  size="small"
+                  onClick={() => setSnackbarOpen(false)}
+                >
+                  {i18n.t("tickets.inbox.no")}
+                </Button>
+              </>
+            }
           />
-        </Box>
-        <Snackbar
-          open={snackbarOpen}
-          onClose={() => setSnackbarOpen(false)}
-          message={i18n.t("tickets.inbox.closedAllTickets")}
-          ContentProps={{ className: classes.snackbar }}
-          action={
-            <>
-              <Button
-                className={classes.yesButton}
-                size="small"
-                onClick={async () => {
-                  await CloseAllTicket();
-                  setSnackbarOpen(false);
-                }}
-              >
-                {i18n.t("tickets.inbox.yes")}
-              </Button>
-              <Button
-                className={classes.noButton}
-                size="small"
-                onClick={() => setSnackbarOpen(false)}
-              >
-                {i18n.t("tickets.inbox.no")}
-              </Button>
-            </>
-          }
-        />
-      </Paper>
+        </Paper>
+      )}
       <TabPanel value={tab} name='open' className={classes.ticketsWrapper}>
         <Tabs
           value={tabOpen}
@@ -504,38 +511,40 @@ const TicketsManagerTabs = () => {
       </TabPanel>
 
       <TabPanel value={tab} name='group' className={classes.ticketsWrapper}>
-        <Tabs
-          value={tabOpen}
-          onChange={handleChangeTabOpen}
-          indicatorColor='primary'
-          textColor='primary'
-          variant='fullWidth'
-        >
-          <Tab
-            label={
-              <Badge
-                className={classes.badge}
-                badgeContent={openCount}
-                color='primary'
-              >
-                {i18n.t('ticketsList.assignedHeader')}
-              </Badge>
-            }
-            value={'open'}
-          />
-          <Tab
-            label={
-              <Badge
-                className={classes.badge}
-                badgeContent={pendingCount}
-                color='primary'
-              >
-                {i18n.t('ticketsList.pendingHeader')}
-              </Badge>
-            }
-            value={'pending'}
-          />
-        </Tabs>
+        {tab !== "group" && (
+          <Tabs
+            value={tabOpen}
+            onChange={handleChangeTabOpen}
+            indicatorColor='primary'
+            textColor='primary'
+            variant='fullWidth'
+          >
+            <Tab
+              label={
+                <Badge
+                  className={classes.badge}
+                  badgeContent={openCount}
+                  color='primary'
+                >
+                  {i18n.t('ticketsList.assignedHeader')}
+                </Badge>
+              }
+              value={'open'}
+            />
+            <Tab
+              label={
+                <Badge
+                  className={classes.badge}
+                  badgeContent={pendingCount}
+                  color='primary'
+                >
+                  {i18n.t('ticketsList.pendingHeader')}
+                </Badge>
+              }
+              value={'pending'}
+            />
+          </Tabs>
+        )}
         <Paper className={classes.ticketsWrapper}>
           <TicketsListGroup
             status='open'
@@ -560,7 +569,7 @@ const TicketsManagerTabs = () => {
           showAll={true}
           selectedQueueIds={selectedQueueIds}
         />
-        {setGroupBox && (
+        {groupBox && (
           <TicketsListGroup
             status='closed'
             showAll={true}

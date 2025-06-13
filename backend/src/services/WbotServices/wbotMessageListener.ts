@@ -768,36 +768,6 @@ const handleOpenAi = async (
       text: response!
     });
     await verifyMessage(sentMessage!, ticket, contact);
-    /*
-    if (prompt.voice === "texto") {
-      const sentMessage = await wbot.sendMessage(msg.key.remoteJid!, {
-        text: response!
-      });
-      await verifyMessage(sentMessage!, ticket, contact);
-    } else {
-      const fileNameWithOutExtension = `${ticket.id}_${Date.now()}`;
-      convertTextToSpeechAndSaveToFile(
-        keepOnlySpecifiedChars(response!),
-        `${publicFolder}/${fileNameWithOutExtension}`,
-        prompt.voiceKey,
-        prompt.voiceRegion,
-        prompt.voice,
-        "mp3"
-      ).then(async () => {
-        try {
-          const sendMessage = await wbot.sendMessage(msg.key.remoteJid!, {
-            audio: { url: `${publicFolder}/${fileNameWithOutExtension}.mp3` },
-            mimetype: "audio/mpeg",
-            ptt: true
-          });
-          await verifyMediaMessage(sendMessage!, ticket, contact);
-          deleteFileSync(`${publicFolder}/${fileNameWithOutExtension}.mp3`);
-          deleteFileSync(`${publicFolder}/${fileNameWithOutExtension}.wav`);
-        } catch (error) {
-          console.log(`Erro para responder com audio: ${error}`);
-        }
-      });
-    }*/
   } else if (msg.message?.audioMessage) {
     const mediaUrl = mediaSent!.mediaUrl!.split("/").pop();
     const file = fs.createReadStream(`${publicFolder}/${mediaUrl}`) as any;
@@ -833,35 +803,6 @@ const handleOpenAi = async (
         .replace("Acción: Transferir al sector de atención", "")
         .trim();
     }
-    /*if (prompt.voice === "texto") {
-      const sentMessage = await wbot.sendMessage(msg.key.remoteJid!, {
-        text: response!
-      });
-      await verifyMessage(sentMessage!, ticket, contact);
-    } else {
-      const fileNameWithOutExtension = `${ticket.id}_${Date.now()}`;
-      convertTextToSpeechAndSaveToFile(
-        keepOnlySpecifiedChars(response!),
-        `${publicFolder}/${fileNameWithOutExtension}`,
-        prompt.voiceKey,
-        prompt.voiceRegion,
-        prompt.voice,
-        "mp3"
-      ).then(async () => {
-        try {
-          const sendMessage = await wbot.sendMessage(msg.key.remoteJid!, {
-            audio: { url: `${publicFolder}/${fileNameWithOutExtension}.mp3` },
-            mimetype: "audio/mpeg",
-            ptt: true
-          });
-          await verifyMediaMessage(sendMessage!, ticket, contact);
-          deleteFileSync(`${publicFolder}/${fileNameWithOutExtension}.mp3`);
-          deleteFileSync(`${publicFolder}/${fileNameWithOutExtension}.wav`);
-        } catch (error) {
-          console.log(`Erro para responder com audio: ${error}`);
-        }
-      });
-    }*/
   }
   messagesOpenAi = [];
 };
@@ -2318,6 +2259,9 @@ const handleMessage = async (
       console.log("🚫 Ticket nulo (grupo bloqueado por configuración).");
       return;
     }
+    if (ticket.unreadMessages !== unreadMessages) {
+      await ticket.update({ unreadMessages });
+    }
     await provider(ticket, msg, companyId, contact, wbot as WASocket);
 
     // voltar para o menu inicial
@@ -2483,8 +2427,8 @@ const handleMessage = async (
           ?.type === "question";
     }
 
-    
-     if (!isNil(flow) && isQuestion && !msg.key.fromMe) {
+
+    if (!isNil(flow) && isQuestion && !msg.key.fromMe) {
       const body = getBodyMessage(msg);
       if (body) {
         const nodes: INodes[] = flow.flow["nodes"];
@@ -2565,7 +2509,7 @@ const handleMessage = async (
         }
         return;
       }
-    } 
+    }
 
     if (isOpenai && !isNil(flow) && !ticket.queue) {
       const nodeSelected = flow.flow["nodes"].find(

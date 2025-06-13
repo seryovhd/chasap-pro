@@ -6,16 +6,17 @@ Este archivo tiene como objetivo llevar un seguimiento de los bugs reportados en
 
 | ID  |   Fecha    |   Estado   |  Ver  | Descripción                                          
 |-----|------------|---------------------------------------------------------------------------|
-| 001 | 21-05-2025 | Pendiente  |       | no envia mensajes privados con hub notifiqueme
-| 002 | 21-05-2025 | Resuelto   | 1.3.3 | no envia doble preguntas en flujos
-| 003 | 22-05-2025 | Resuelto   | 1.3.4 | no envia mensaje de chatgpt
-| 004 | 21-05-2025 | Resuelto   | 1.3.5 | kanban, no filtra solo los activos
-| 005 | 21-05-2025 | Resuelto   | 1.3.3 | en flujos, la opcion de ticket no distribuye al area
-| 006 | 23-05-2025 | Resuelto   | 1.3.6 | no deja cerrar el modal mensaje espia
-| 007 | 23-05-2025 | Pendiente  |       | en grupos, no debe tener el ojo espia
-| 008 | 23-05-2025 | Pendiente  |       | en grupos, no debe quedar asgignado con agente
-| 009 | 04-06-2025 | Resuelto   | 1.3.6 | nuevo ticket debe quedar sin fila a menos que recuerde agente
-
+001	| 21-05-2025 |	Pendiente	| 	    | No se envían mensajes privados al usar Hub Notifícame.
+002	| 21-05-2025 |	Resuelto	| 1.3.3	| En flujos, no se envían preguntas duplicadas.
+003	| 22-05-2025 | 	Resuelto	| 1.3.4	| No se envía la respuesta generada por ChatGPT.
+004	| 21-05-2025 |	Resuelto	| 1.3.5	| En Kanban, no se filtran correctamente los tickets activos.
+005	| 21-05-2025 |	Resuelto	| 1.3.3	| En flujos, la opción de crear ticket no distribuye al área correspondiente.
+006	| 23-05-2025 |	Resuelto	| 1.3.6	| El modal de mensaje espía no se puede cerrar correctamente.
+007	| 23-05-2025 |	Pendiente	| 1.3.7 | En grupos, no debe mostrarse el ícono del mensaje espía.
+008	| 23-05-2025 |	Pendiente	| 1.3.7 | En grupos, no debe asignarse automáticamente a un agente.
+009	| 04-06-2025 |	Resuelto	| 1.3.6	| Al crear nuevo ticket, no debe asignarse a una fila a menos que recuerde al agente anterior.
+010	| 05-06-2025 |	Pendiente	|       | La acción 'Cerrar todos' debe eliminar cualquier asignación de fila en los tickets cerrados.
+011	| 12-06-2025 |	Pendiente	|       | el cerrado automatico de ticket, despues de x segundos causa reinicio del servicio
 
 ## 📝 Leyenda de Estados
 

@@ -169,10 +169,10 @@ const TicketsListCustom = (props) => {
       return canAccess && (belongsToQueue || isNoQueue || hasWhatsappPermission);
     });
 
-    if (profile === "user") {
-      dispatch({ type: "LOAD_TICKETS", payload: filteredTickets });
+    if (profile === "admin") {
+      dispatch({ type: "LOAD_TICKETS", payload: tickets }); // Solo admin ve todos
     } else {
-      dispatch({ type: "LOAD_TICKETS", payload: tickets });
+      dispatch({ type: "LOAD_TICKETS", payload: filteredTickets }); // Todos los demás, filtrado
     }
   }, [tickets, status, searchParam, queues, profile, user.id, user.whatsappId, allTicket]);
 
@@ -220,7 +220,7 @@ const TicketsListCustom = (props) => {
       }
     });
     socket.on(`company-${companyId}-appMessage`, (data) => {
-         console.log("📥 Mensaje recibido por socket:", data);
+      //console.log("📥 Mensaje recibido por socket:", data);
       const ticket = data?.ticket;
       if (!ticket || !ticket.whatsappId) return;
 
@@ -234,6 +234,18 @@ const TicketsListCustom = (props) => {
       if (!canSee) return;
 
       if (data.action === "create" && (status === undefined || ticket.status === status)) {
+        const canAccess =
+          profile === "admin" ||
+          showAll ||
+          ticket.userId === user.id ||
+          (ticket.userId === null && (
+            (ticket.queueId === null && allTicket === "enabled") ||
+            selectedQueueIds.includes(ticket.queueId)
+          )) ||
+          userWhatsappIds.includes(String(ticket.whatsappId));
+
+        if (!canAccess) return;
+
         dispatch({ type: "UPDATE_TICKET_UNREAD_MESSAGES", payload: ticket });
       }
     });

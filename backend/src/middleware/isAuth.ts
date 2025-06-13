@@ -31,7 +31,7 @@ const isAuth = (req: Request, res: Response, next: NextFunction): void => {
       companyId
     };
   } catch (err) {
-    throw new AppError("Token inválido o expirado", 403);
+    throw new AppError("TOKEN EXPIRADO", 403);
   }
 
   return next();

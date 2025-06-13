@@ -82,25 +82,6 @@ const UpdateTicketService = async ({
     const oldQueueId = ticket.queueId;
 
     if (oldStatus === "closed" || Number(whatsappId) !== ticket.whatsappId) {
-      // let otherTicket = await Ticket.findOne({
-      //   where: {
-      //     contactId: ticket.contactId,
-      //     status: { [Op.or]: ["open", "pending", "group"] },
-      //     whatsappId
-      //   }
-      // });
-      // if (otherTicket) {
-      //     otherTicket = await ShowTicketService(otherTicket.id, companyId)
-
-      //     await ticket.update({status: "closed"})
-
-      //     io.to(oldStatus).emit(`company-${companyId}-ticket`, {
-      //       action: "delete",
-      //       ticketId: ticket.id
-      //     });
-
-      //     return { ticket: otherTicket, oldStatus, oldUserId }
-      // }
       await CheckContactOpenTickets(ticket.contact.id, whatsappId);
       chatbot = null;
       queueOptionId = null;
@@ -264,6 +245,10 @@ const UpdateTicketService = async ({
         userId = null;
         queueId = null;
       }
+    }
+    if (ticket.isGroup) {
+      status = "open";
+      userId = null;
     }
     await ticket.update({
       status,

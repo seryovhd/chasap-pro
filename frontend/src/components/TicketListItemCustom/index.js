@@ -215,12 +215,29 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: "0px 8px 8px 0px",
     fontSize: "0.8rem",
     boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
-    height: "100%",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     "&:hover": {
       backgroundColor: "#0b5ed7",
+    },
+  },
+  botonCerrarEstiloImagen: {
+    marginTop: 25,
+    background: theme.palette.type === 'dark' ? '#9E9E9E' : '#e0e0e0',
+    color: theme.palette.type === 'dark' ? '#000' : '#373a3c',
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    fontSize: "0.6rem",
+    boxShadow: "0px 3px 6px rgba(0,0,0,0.2)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    "&:hover": {
+      backgroundColor: "#F44336",
+      color: "#fff",
     },
   }
 }));
@@ -502,7 +519,7 @@ const TicketListItemCustom = ({ ticket }) => {
                           {ticket?.user?.name}
                         </span>
                       )}
-                      {profile === "admin" && (
+                      {profile === "admin" && !ticket.isGroup && ticket.status === "pending" && (
                         <Tooltip title="Ver mensajes">
                           <button
                             onClick={() => setOpenTicketMessageDialog(true)}
@@ -523,12 +540,6 @@ const TicketListItemCustom = ({ ticket }) => {
                   </>
                 )}
               </Typography>
-
-              <Badge
-                className={classes.newMessagesCount}
-                badgeContent={ticket.unreadMessages}
-                classes={{ badge: classes.badgeStyle }}
-              />
             </span>
           }
         />
@@ -554,7 +565,11 @@ const TicketListItemCustom = ({ ticket }) => {
                   : format(parseISO(ticket.updatedAt), "dd/MM/yyyy")}
               </Typography>
             )}
-
+            <Badge
+              className={classes.newMessagesCount}
+              badgeContent={ticket.unreadMessages}
+              classes={{ badge: classes.badgeStyle }}
+            />
             {ticket.status === "pending" && ticket.isGroup && (
               <ButtonWithSpinner
                 variant="contained"
@@ -614,7 +629,7 @@ const TicketListItemCustom = ({ ticket }) => {
               </Tooltip>
             )}
           </Box>
-          <Box display="flex" alignItems="stretch" height="100%">
+          <Box>
             {ticket.status === "pending" && !ticket.isGroup && (
               <Button
                 variant="contained"
@@ -624,6 +639,16 @@ const TicketListItemCustom = ({ ticket }) => {
                 fullWidth
               >
                 <span style={{ fontSize: "0.75rem", fontWeight: "bold" }}>Aceptar</span>
+              </Button>
+            )}
+            {ticket.status === "open" && !ticket.isGroup && (
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => handleCloseTicket(ticket.id)}
+                className={classes.botonCerrarEstiloImagen}
+              >
+                <span style={{ fontSize: "0.7rem", fontWeight: "bold" }}>Cerrar</span>
               </Button>
             )}
             {/* Otros botones si necesitas */}

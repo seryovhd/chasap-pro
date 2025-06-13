@@ -59,8 +59,7 @@ export const show = async (
   res: Response
 ): Promise<Response> => {
 
-  //const { companyId } = req.user;
-  const companyId = 1;
+  const { companyId } = req.user;
   const { settingKey } = req.params;
   
 

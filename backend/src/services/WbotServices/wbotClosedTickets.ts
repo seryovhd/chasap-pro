@@ -84,10 +84,10 @@ export const ClosedAllOpenTickets = async (companyId: number): Promise<void> => 
         if (showTicket.status === "open" && !showTicket.isGroup) {
 
           const dataUltimaInteracaoChamado = new Date(showTicket.updatedAt)
-//logger.info(`🕐 TICKET ${ticket.id} - STATUS: ${showTicket.status} | FROMME: ${showTicket.fromMe} | LAST UPDATE: ${dataUltimaInteracaoChamado.toISOString()}`);
-//logger.info(`📅 LIMITE DE INACTIVIDAD: ${dataLimite.toISOString()}`);
+          //logger.info(`🕐 TICKET ${ticket.id} - STATUS: ${showTicket.status} | FROMME: ${showTicket.fromMe} | LAST UPDATE: ${dataUltimaInteracaoChamado.toISOString()}`);
+          //logger.info(`📅 LIMITE DE INACTIVIDAD: ${dataLimite.toISOString()}`);
           if (dataUltimaInteracaoChamado < dataLimite) {
-logger.info(`✅ TICKET ${ticket.id} CERRADO POR INACTIVIDAD`);
+            logger.info(`✅ TICKET ${ticket.id} CERRADO POR INACTIVIDAD`);
             closeTicket(showTicket, showTicket.status, bodyExpiresMessageInactive);
 
             if (expiresInactiveMessage !== "" && expiresInactiveMessage !== undefined) {
@@ -96,12 +96,16 @@ logger.info(`✅ TICKET ${ticket.id} CERRADO POR INACTIVIDAD`);
               await verifyMessage(sentMessage, showTicket, showTicket.contact);
             }
 
-            await ticketTraking.update({
-              finishedAt: moment().toDate(),
-              closedAt: moment().toDate(),
-              whatsappId: ticket.whatsappId,
-              userId: ticket.userId,
-            })
+            if (ticketTraking) {
+              await ticketTraking.update({
+                finishedAt: moment().toDate(),
+                closedAt: moment().toDate(),
+                whatsappId: ticket.whatsappId,
+                userId: ticket.userId,
+              });
+            } else {
+              logger.warn(`⚠️ No se encontró TicketTraking para el ticket ${ticket.id}`);
+            }
 
             io.to("open").emit(`company-${companyId}-ticket`, {
               action: "delete",
